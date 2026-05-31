@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SNIR. · דוח ביצועים</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --paper:      #F5F2EC;
+      --paper-dim:  #ECE7DC;
+      --ink:        #0B0B0F;
+      --ink-soft:   #2A2A30;
+      --ink-mute:   #6B6B72;
+      --purple:     #4B2BE0;
+      --lilac:      #C7BBF5;
+      --rule:       rgba(11,11,15,0.10);
+      --green:      #1A6B3C;
+      --green-bg:   rgba(26,107,60,0.08);
+      --red:        #C0392B;
+
+      --font-display: 'Archivo Black', system-ui, sans-serif;
+      --font-text:    'Archivo', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+      --gutter: clamp(1.25rem, 4vw, 4rem);
+      --radius: 6px;
+      --max-w:  1360px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    /* ── Topbar ─────────────────────────────── */
+    .topbar {
+      border-bottom: 1px solid var(--rule);
+      padding: 1.1rem 0;
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--purple);
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-sep { color: var(--ink-mute); font-family: var(--font-mono); font-size: 0.7rem; }
+
+    .client-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── Period select ───────────────────────── */
+    .period-select {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--paper-dim);
+      color: var(--ink-soft);
+      border: 1px solid var(--rule);
+      border-radius: 99px;
+      padding: 0.22rem 1.6rem 0.22rem 0.65rem;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236B6B72'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 0.55rem center;
+      outline: none;
+      transition: border-color 0.12s;
+    }
+
+    .period-select:focus { border-color: var(--purple); }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      background: var(--paper-dim);
+      color: var(--ink-soft);
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+    }
+
+    .updated {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+    }
+
+    /* ── Loading ─────────────────────────────── */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 1rem;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--paper-dim);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Section ─────────────────────────────── */
+    .section {
+      padding: 2.25rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .section:last-child { border-bottom: none; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-mute);
+    }
+
+    .section-source {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--purple);
+      opacity: 0.7;
+    }
+
+    /* ── KPI grid ────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: var(--paper);
+      padding: 1.25rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-mute);
+    }
+
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+
+    .kpi-delta { font-family: var(--font-mono); font-size: 0.7rem; }
+    .kpi-delta.up   { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
+    .kpi-delta.flat { color: var(--ink-mute); }
+
+    /* ── Sparkline ───────────────────────────── */
+    .sparkline-wrap { height: 110px; }
+
+    /* ── Two-col ─────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Donut ───────────────────────────────── */
+    .donut-canvas-wrap {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto;
+    }
+
+    /* ── Channel performance table ───────────── */
+    .chan-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chan-bar {
+      height: 5px;
+      border-radius: 99px;
+      flex-shrink: 0;
+      transition: width 0.3s;
+    }
+
+    /* ── Data table ──────────────────────────── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-mute);
+      font-weight: 400;
+      text-align: right;
+      padding: 0 0 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .data-table td {
+      padding: 0.55rem 0 0.55rem 0.75rem;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--rule);
+      color: var(--ink-soft);
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .cell-primary {
+      color: var(--ink);
+      font-weight: 500;
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cell-mono {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-align: left;
+    }
+
+    .cell-conv {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-align: left;
+      color: var(--purple);
+    }
+
+    /* ── Shopify leads section ───────────────── */
+    .leads-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 560px) { .leads-split { grid-template-columns: 1fr; } }
+
+    .leads-panel { background: var(--paper); padding: 1.5rem 1.25rem; }
+
+    .leads-type {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    .leads-type.pro        { color: var(--purple); }
+    .leads-type.newsletter { color: var(--ink-mute); }
+
+    .leads-count {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
+    }
+
+    .leads-sub {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ink-mute);
+      margin-bottom: 1.25rem;
+    }
+
+    .leads-sub strong { color: var(--green); }
+
+    .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      padding: 0.35rem 0;
+      border-top: 1px solid var(--rule);
+    }
+
+    .recent-name { color: var(--ink); font-weight: 500; }
+    .recent-date { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-mute); }
+
+    /* ── Facebook Leads section ──────────────── */
+    .fb-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .fb-cell { background: var(--paper); padding: 1.1rem 1rem; }
+
+    .fb-key {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-mute);
+      margin-bottom: 0.3rem;
+    }
+
+    .fb-val {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    /* ── FB Date / Time cells ───────────────── */
+    .fb-date {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--ink);
+    }
+    .fb-time {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+      font-family: var(--font-mono);
+    }
+    .fb-empty { color: var(--rule); }
+
+    /* ── FB Flag column ──────────────────────── */
+    .fb-flag-th, .fb-flag-td {
+      width: 1.6rem;
+      min-width: 1.6rem;
+      text-align: center;
+      padding-right: 0 !important;
+      padding-left: 0 !important;
+    }
+    .fb-flag-td { font-size: 0.9rem; color: #c03a2b; vertical-align: middle; }
+    .fb-alert-row td { background: rgba(192,57,43,0.04); }
+
+    /* ── FB Alerts summary ───────────────────── */
+    .fb-alerts-box {
+      background: rgba(192,57,43,0.06);
+      border: 1px solid rgba(192,57,43,0.18);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .fb-alerts-title {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #c03a2b;
+      margin-bottom: 0.7rem;
+    }
+    .fb-alert-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid rgba(192,57,43,0.1);
+      font-size: 0.8rem;
+      gap: 1rem;
+    }
+    .fb-alert-item:last-child { border-bottom: none; }
+    .fb-alert-name { color: var(--ink); font-weight: 500; }
+    .fb-alert-days { font-family: var(--font-mono); font-size: 0.72rem; color: #c03a2b; white-space: nowrap; }
+    .fb-alert-tip  { font-size: 0.75rem; color: var(--ink-mute); }
+
+    /* ── FB Pager ───────────────────────────── */
+    .fb-pager {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--ink-mute);
+    }
+    .fb-pager button {
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 0.3rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    .fb-pager button:disabled { opacity: 0.3; cursor: default; }
+    .fb-pager button:not(:disabled):hover { border-color: var(--purple); color: var(--purple); }
+
+    /* ── Stale warning ───────────────────────── */
+    .stale-bar {
+      background: rgba(192,57,43,0.07);
+      border-bottom: 1px solid rgba(192,57,43,0.15);
+      padding: 0.45rem var(--gutter);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--red);
+      text-align: center;
+      display: none;
+    }
+
+    .stale-bar.show { display: block; }
+
+    /* ── Footer ──────────────────────────────── */
+    .footer {
+      padding: 2rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .footer-brand { font-family: var(--font-display); font-size: 0.75rem; color: var(--ink-mute); }
+    .footer-line  { font-family: var(--font-mono); font-size: 0.62rem; color: var(--ink-mute); }
+  </style>
+</head>
+<body>
+
+<!-- ── CONFIG — edit per client ─────────────── -->
+<script>
+  var CONFIG = {
+    appsScriptUrl: "REPLACE_WITH_APPS_SCRIPT_URL",
+    clientName:    "PLSRClub",
+    currency:      "$",
+    refreshMin:    10,
+  };
+</script>
+
+<div class="stale-bar" id="staleBar">
+  נתונים לא עדכניים — הטעינה האחרונה נכשלה. מוצגים נתונים שמורים.
+</div>
+
+<!-- ── Topbar ──────────────────────────────── -->
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand-row">
+      <div class="dot"></div>
+      <span class="brand-name">SNIR.</span>
+      <span class="brand-sep">/</span>
+      <span class="client-label" id="hClientName">טוען...</span>
+    </div>
+    <div class="meta-row">
+      <select id="periodSelect" class="period-select">
+        <option value="today" selected>היום</option>
+        <option value="yesterday">אתמול</option>
+        <option value="7">7 ימים אחרונים</option>
+        <option value="14">14 יום אחרונים</option>
+        <option value="30">30 יום אחרונים</option>
+        <option value="60">60 יום אחרונים</option>
+        <option value="90">90 יום אחרונים</option>
+      </select>
+      <span class="badge" id="hPeriod">30 יום</span>
+      <span class="updated" id="hUpdated">מתעדכן...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Loading ────────────────────────────── -->
+<div class="loading" id="loadingEl">
+  <div class="spinner"></div>
+  <div class="loading-label">שולף נתונים...</div>
+</div>
+
+<!-- ── Dashboard ──────────────────────────── -->
+<div id="dash" style="display:none;">
+  <div class="wrap">
+
+    <!-- 1. GA4 — Sessions + sparkline -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">תנועה לאתר</span>
+        <span class="section-source">Google Analytics</span>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="sparkline-wrap">
+        <canvas id="sparkChart"></canvas>
+      </div>
+    </div>
+
+    <!-- E-Commerce KPIs -->
+    <div class="section" id="ecomSection" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">מסחר אלקטרוני</span>
+        <span class="section-source">Google Analytics</span>
+      </div>
+      <div class="kpi-grid" id="ecomGrid"></div>
+    </div>
+
+    <!-- GA4 — Sources + channel performance -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">מקורות תנועה ותוצאות</span>
+        <span class="section-source">Google Analytics</span>
+      </div>
+      <div class="two-col">
+        <div>
+          <div class="donut-canvas-wrap">
+            <canvas id="sourceChart"></canvas>
+          </div>
+        </div>
+        <div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ערוץ</th>
+                <th style="text-align:left;">סשנים</th>
+                <th style="text-align:left;">צפ׳ מוצר</th>
+                <th style="text-align:left;">הוספה לסל</th>
+                <th style="text-align:left;color:var(--purple);">הרשמות</th>
+                <th style="text-align:left;">רכישות</th>
+                <th style="text-align:left;">זמן</th>
+              </tr>
+            </thead>
+            <tbody id="chanPerfBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pages -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">עמודים מובילים</span>
+        <span class="section-source">Google Analytics</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>עמוד</th>
+            <th style="text-align:left;">סשנים</th>
+            <th style="text-align:left;">צפיות</th>
+          </tr>
+        </thead>
+        <tbody id="pagesBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 2. Shopify Leads -->
+    <div class="section" id="shopifySection" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">לידים</span>
+        <span class="section-source">Shopify Forms</span>
+      </div>
+      <div class="leads-split" id="leadsPanel"></div>
+    </div>
+
+    <!-- 3. Facebook Leads (Sheets) -->
+    <div class="section" id="fbSection" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">לידים פייסבוק</span>
+        <span class="section-source">Google Sheets</span>
+      </div>
+      <div class="fb-grid" id="fbGrid"></div>
+      <div id="fbTable" style="margin-top:1.25rem;overflow-x:auto;"></div>
+      <div class="fb-pager" id="fbPager"></div>
+    </div>
+
+    <div class="footer">
+      <span class="footer-brand">SNIR.</span>
+      <span class="footer-line">דוח ביצועים דיגיטלי · מתעדכן אוטומטית כל 10 דקות</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── App ────────────────────────────────── -->
+<script>
+(function () {
+  Chart.defaults.font.family = "'Archivo', system-ui, sans-serif";
+  Chart.defaults.color       = "#6B6B72";
+
+  var COLORS = ["#4B2BE0","#C7BBF5","#0B0B0F","#B8A9F0","#6B6B72","#2A2A30","#8B7FD4","#ECE7DC"];
+
+  var cache      = null;
+  var sparkChart = null;
+  var srcChart   = null;
+  var currentMode = "today";
+
+  // ── Date helpers ──────────────────────────
+  function localStr(d) {
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  function getPeriodRange(mode) {
+    var now  = new Date();
+    var today = localStr(now);
+    var yesterday = localStr(new Date(now.getTime() - 86400000));
+    if (mode === "today")     return { start: today,     end: today,     label: "היום" };
+    if (mode === "yesterday") return { start: yesterday, end: yesterday, label: "אתמול" };
+    var d = parseInt(mode, 10) || 30;
+    return {
+      start: localStr(new Date(now.getTime() - d * 86400000)),
+      end:   today,
+      label: d + " ימים אחרונים",
+    };
+  }
+
+  // ── Fetch ─────────────────────────────────
+  function load(isRefresh, mode) {
+    mode = mode || currentMode;
+    var range = getPeriodRange(mode);
+    var url = CONFIG.appsScriptUrl +
+      "?t=" + Date.now() +
+      "&startDate=" + range.start +
+      "&endDate="   + range.end +
+      "&label="     + encodeURIComponent(range.label);
+
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.error) throw new Error(d.error);
+        cache = d;
+        document.getElementById("staleBar").classList.remove("show");
+        render(d);
+        if (!isRefresh) show();
+      })
+      .catch(function (err) {
+        if (cache) {
+          document.getElementById("staleBar").classList.add("show");
+          render(cache);
+          if (!isRefresh) show();
+        } else {
+          document.getElementById("loadingEl").innerHTML =
+            '<div style="text-align:center;padding:4rem 1rem;">' +
+            '<div style="font-family:var(--font-mono);font-size:.7rem;color:var(--red);text-transform:uppercase;letter-spacing:.08em;">שגיאה בחיבור</div>' +
+            '<div style="margin-top:.5rem;font-size:.8rem;color:var(--ink-mute);">' + esc(err.message) + '</div></div>';
+        }
+      });
+  }
+
+  function show() {
+    document.getElementById("loadingEl").style.display = "none";
+    document.getElementById("dash").style.display      = "block";
+  }
+
+  // ── Render ────────────────────────────────
+  function render(d) {
+    document.getElementById("hClientName").textContent = CONFIG.clientName;
+    var label = (d.config && d.config.label) || "30 ימים אחרונים";
+    document.getElementById("hPeriod").textContent = label;
+    if (d.updated) {
+      var t = new Date(d.updated);
+      document.getElementById("hUpdated").textContent =
+        "עודכן " + t.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+    }
+    if (d.ga4)      renderGA4(d.ga4);
+    if (d.ga4 && d.ga4.ecommerce) renderEcommerce(d.ga4.ecommerce);
+    if (d.shopify)  renderShopify(d.shopify);
+    if (d.facebook) renderFacebook(d.facebook);
+  }
+
+  // ── GA4 ───────────────────────────────────
+  function renderGA4(ga4) {
+    var cur  = ga4.overview.current  || {};
+    var prev = ga4.overview.previous || {};
+
+    var cards = [
+      { label: "סשנים",          key: "sessions",           fmt: num },
+      { label: "משתמשים",        key: "totalUsers",          fmt: num },
+      { label: "משתמשים חדשים",  key: "newUsers",            fmt: num },
+      { label: "זמן ממוצע",      key: "avgSessionDuration",  fmt: dur },
+    ];
+
+    document.getElementById("kpiGrid").innerHTML = cards.map(function (c) {
+      var cv = cur[c.key]  || 0;
+      var pv = prev[c.key] || 0;
+      var d  = delta(cv, pv, c.inv);
+      return '<div class="kpi-card">' +
+        '<div class="kpi-label">' + c.label + '</div>' +
+        '<div class="kpi-value">' + c.fmt(cv) + '</div>' +
+        '<div class="kpi-delta ' + d.cls + '">' + d.txt + '</div>' +
+        '</div>';
+    }).join("");
+
+    // Sparkline
+    var sp  = ga4.sparkline || {};
+    var ctx = document.getElementById("sparkChart").getContext("2d");
+    if (sparkChart) sparkChart.destroy();
+    sparkChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: sp.dates || [],
+        datasets: [{
+          data:            sp.sessions || [],
+          borderColor:     "#4B2BE0",
+          backgroundColor: "rgba(75,43,224,0.06)",
+          borderWidth:     2,
+          pointRadius:     2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: "#4B2BE0",
+          tension:         0.35,
+          fill:            true,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#0B0B0F",
+            titleFont: { family: "'JetBrains Mono'", size: 11 },
+            bodyFont:  { family: "'JetBrains Mono'", size: 11 },
+            padding: 10,
+            callbacks: {
+              title: function (items) { return items[0].label; },
+              label: function (c) { return "סשנים: " + num(c.parsed.y); },
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { family: "'JetBrains Mono'", size: 10 } } },
+          y: { grid: { color: "rgba(11,11,15,0.06)" }, ticks: { font: { family: "'JetBrains Mono'", size: 10 }, callback: num } },
+        },
+      },
+    });
+
+    // Sources donut
+    var sources      = ga4.sources || [];
+    var convSources  = ga4.conversionsBySource || {};   // { channel: { purchase: N, form_submit: M } }
+    var durationMap  = ga4.durationBySource    || {};   // { channel: seconds }
+
+    var ctx2 = document.getElementById("sourceChart").getContext("2d");
+    if (srcChart) srcChart.destroy();
+    srcChart = new Chart(ctx2, {
+      type: "doughnut",
+      data: {
+        labels: sources.map(function (s) { return s.label; }),
+        datasets: [{
+          data:            sources.map(function (s) { return s.value; }),
+          backgroundColor: COLORS,
+          borderWidth:     0,
+          hoverOffset:     6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "68%",
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#0B0B0F",
+            titleFont: { family: "'JetBrains Mono'", size: 11 },
+            bodyFont:  { family: "'JetBrains Mono'", size: 11 },
+            padding: 10,
+            callbacks: {
+              title: function (c) {
+                return sources[c[0].dataIndex] ? sources[c[0].dataIndex].label : "";
+              },
+              label: function (c) {
+                var s          = sources[c.dataIndex];
+                var ch         = convSources[s ? s.label : ""] || {};
+                var formSubmit = ch["form_submit"] || 0;
+                var viewItem   = ch["view_item"]   || 0;
+                var secs       = durationMap[s ? s.label : ""] || 0;
+                var lines      = ["סשנים:   " + num(c.parsed) + " (" + (s ? s.pct : 0) + "%)"];
+                if (formSubmit > 0) lines.push("הרשמות:  " + formSubmit);
+                if (viewItem   > 0) lines.push("צפ׳ מוצר: " + num(viewItem));
+                if (secs       > 0) lines.push("זמן:     " + dur(secs));
+                return lines;
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Combined channel performance table
+    document.getElementById("chanPerfBody").innerHTML = sources.map(function (s, i) {
+      var ch         = convSources[s.label] || {};
+      var viewItem   = ch["view_item"]   || 0;
+      var addToCart  = ch["add_to_cart"] || 0;
+      var formSubmit = ch["form_submit"] || 0;
+      var purchases  = ch["purchase"]    || 0;
+      var secs       = durationMap[s.label] || 0;
+      var barW       = Math.round(s.pct * 0.8);
+      return '<tr>' +
+        '<td>' +
+          '<div class="chan-bar-wrap">' +
+            '<div class="chan-bar" style="background:' + (COLORS[i] || "#ccc") + ';width:' + barW + 'px;"></div>' +
+            '<span class="cell-primary">' + esc(s.label) + '</span>' +
+          '</div>' +
+        '</td>' +
+        '<td class="cell-mono">' + num(s.value) + ' <span style="color:var(--ink-mute)">(' + s.pct + '%)</span></td>' +
+        '<td class="cell-mono">' + (viewItem   > 0 ? num(viewItem)   : "—") + '</td>' +
+        '<td class="cell-mono">' + (addToCart  > 0 ? num(addToCart)  : "—") + '</td>' +
+        '<td class="' + (formSubmit > 0 ? "cell-conv" : "cell-mono") + '">' + (formSubmit > 0 ? formSubmit : "—") + '</td>' +
+        '<td class="cell-mono">' + (purchases  > 0 ? num(purchases)  : "—") + '</td>' +
+        '<td class="cell-mono">' + (secs > 0 ? dur(secs) : "—") + '</td>' +
+        '</tr>';
+    }).join("");
+
+    // Pages
+    document.getElementById("pagesBody").innerHTML = (ga4.pages || []).map(function (p) {
+      return '<tr>' +
+        '<td class="cell-primary" title="' + esc(p.path) + '">' + esc(p.title) + '</td>' +
+        '<td class="cell-mono">' + num(p.sessions) + '</td>' +
+        '<td class="cell-mono">' + num(p.views) + '</td>' +
+        '</tr>';
+    }).join("");
+  }
+
+  // ── E-Commerce ────────────────────────────
+  function renderEcommerce(ec) {
+    if (!ec) return;
+    document.getElementById("ecomSection").style.display = "block";
+
+    var cards = [
+      { label: "הוספה לסל",    cur: (ec.addToCart  ||{}).current||0, prev: (ec.addToCart  ||{}).previous||0, fmt: num },
+      { label: "צפייה במוצר", cur: (ec.viewItem   ||{}).current||0, prev: (ec.viewItem   ||{}).previous||0, fmt: num },
+      { label: "הרשמות",      cur: (ec.formSubmit ||{}).current||0, prev: (ec.formSubmit ||{}).previous||0, fmt: num },
+      { label: "רכישות",      cur: (ec.purchases  ||{}).current||0, prev: (ec.purchases  ||{}).previous||0, fmt: num },
+      { label: "סה״כ מכירות",    cur: ec.revenue.current,         prev: ec.revenue.previous,        fmt: rev },
+    ];
+
+    document.getElementById("ecomGrid").innerHTML = cards.map(function (c) {
+      var d = delta(c.cur, c.prev, false);
+      return '<div class="kpi-card">' +
+        '<div class="kpi-label">' + c.label + '</div>' +
+        '<div class="kpi-value">' + c.fmt(c.cur) + '</div>' +
+        '<div class="kpi-delta ' + d.cls + '">' + d.txt + '</div>' +
+        '</div>';
+    }).join("");
+  }
+
+  // ── Shopify Leads ─────────────────────────
+  function renderShopify(sh) {
+    var pro  = sh.pro        || { total: 0, newMonth: 0, recent: [] };
+    var news = sh.newsletter || { total: 0, newMonth: 0 };
+
+
+    var recentHtml = "";
+    if (pro.recent && pro.recent.length) {
+      recentHtml = '<div style="margin-top:.9rem;">' +
+        '<div class="kpi-label" style="margin-bottom:.5rem;">אחרונים</div>' +
+        '<div class="recent-list">' +
+        pro.recent.map(function (c) {
+          return '<div class="recent-item">' +
+            '<span class="recent-name">' + esc(c.name) + '</span>' +
+            '<span class="recent-date">' + esc(c.date) + '</span>' +
+            '</div>';
+        }).join("") +
+        '</div></div>';
+    }
+
+    document.getElementById("leadsPanel").innerHTML =
+      '<div class="leads-panel">' +
+        '<div class="leads-type pro">Pro Club</div>' +
+        '<div class="leads-count">' + num(pro.total) + '</div>' +
+        '<div class="leads-sub">החודש: <strong>+' + pro.newMonth + '</strong></div>' +
+        recentHtml +
+      '</div>' +
+      '<div class="leads-panel">' +
+        '<div class="leads-type newsletter">Newsletter</div>' +
+        '<div class="leads-count">' + num(news.total) + '</div>' +
+        '<div class="leads-sub">החודש: <strong>+' + news.newMonth + '</strong></div>' +
+      '</div>';
+  }
+
+  // ── Facebook Leads ────────────────────────
+  var _fbRows = [], _fbHeaders = [], _fbPage = 0;
+  var FB_PAGE_SIZE = 15;
+
+  // Columns that indicate a follow-up action was taken
+  function _fbActionCols() {
+    return _fbHeaders.filter(function (h) {
+      var hl = h.toLowerCase();
+      return hl.includes("approved") || hl.includes("ship") ||
+             hl.includes("tracking") || hl.includes("sent") ||
+             hl.includes("sms") || hl.includes("prokit") ||
+             hl.includes("called") || hl.includes("status") ||
+             hl.includes("respond");
+    });
+  }
+
+  // Parse a date from various formats (ISO, M/D/YYYY)
+  function _parseFbDate(val) {
+    if (!val) return null;
+    var s = String(val);
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return d;
+    var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return new Date(parseInt(m[3]), parseInt(m[1]) - 1, parseInt(m[2]));
+    return null;
+  }
+
+  // Returns { days: N } if lead needs follow-up, else null
+  function _fbGetAlert(row) {
+    var actionCols = _fbActionCols();
+    var hasAction = actionCols.some(function (h) {
+      var v = row[h];
+      return v !== undefined && v !== null && String(v).trim() !== "" && String(v).trim().toLowerCase() !== "no";
+    });
+    if (hasAction) return null;
+
+    var dateCol = _fbHeaders.find(function (h) { return h.toLowerCase() === "date"; }) || _fbHeaders[0];
+    var d = _parseFbDate(row[dateCol]);
+    if (!d) return null;
+
+    var days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if (days < 2) return null;
+    return { days: days };
+  }
+
+  // Format a cell — splits datetime into two lines
+  function _fbFmtCell(val) {
+    var s = String(val !== undefined && val !== null ? val : "");
+    if (!s || s === "undefined") return '<span class="fb-empty">—</span>';
+
+    // ISO: 2026-04-28T16:53:43.000Z
+    var isoM = s.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+    if (isoM) {
+      return '<span class="fb-date">' + esc(isoM[1]) + '</span>' +
+             '<span class="fb-time">' + esc(isoM[2]) + '</span>';
+    }
+    // US: 4/28/2026 19:53:43
+    var usM = s.match(/^(\d{1,2}\/\d{1,2}\/\d{4})\s+(\d{1,2}:\d{2})/);
+    if (usM) {
+      return '<span class="fb-date">' + esc(usM[1]) + '</span>' +
+             '<span class="fb-time">' + esc(usM[2]) + '</span>';
+    }
+    return esc(s);
+  }
+
+  function renderFacebook(fb) {
+    if (!fb || fb.total === 0) return;
+    document.getElementById("fbSection").style.display = "block";
+
+    document.getElementById("fbGrid").innerHTML =
+      '<div class="fb-cell">' +
+        '<div class="fb-key">סה"כ לידים</div>' +
+        '<div class="fb-val">' + num(fb.total) + '</div>' +
+      '</div>';
+
+    if (!fb.headers || !fb.headers.length) return;
+    _fbHeaders = fb.headers;
+    // Newest first
+    _fbRows = (fb.rows || fb.recent || []).slice().reverse();
+    _fbPage = 0;
+    renderFbPage();
+  }
+
+  function renderFbPage() {
+    var start = _fbPage * FB_PAGE_SIZE;
+    var slice = _fbRows.slice(start, start + FB_PAGE_SIZE);
+    var total = _fbRows.length;
+    var pages = Math.ceil(total / FB_PAGE_SIZE);
+
+    // Build alerts summary (all rows, not just current page)
+    var alertRows = _fbRows.filter(function (r) { return !!_fbGetAlert(r); });
+    var alertHtml = "";
+    if (alertRows.length > 0) {
+      var nameCol = _fbHeaders.find(function (h) { return h.toLowerCase() === "name"; }) || _fbHeaders[1] || _fbHeaders[0];
+      alertHtml =
+        '<div class="fb-alerts-box">' +
+          '<div class="fb-alerts-title">⚠ ' + alertRows.length + ' לידים שדורשים המשך טיפול</div>' +
+          alertRows.map(function (r) {
+            var a = _fbGetAlert(r);
+            var name = esc(String(r[nameCol] || r[_fbHeaders[0]] || "—"));
+            var urgency = a.days >= 7 ? " · דחוף" : a.days >= 4 ? " · שים לב" : "";
+            return '<div class="fb-alert-item">' +
+              '<span class="fb-alert-name">' + name + '</span>' +
+              '<span class="fb-alert-days">' + a.days + ' ימים ללא מענה' + urgency + '</span>' +
+            '</div>';
+          }).join("") +
+        '</div>';
+    }
+
+    // Table
+    var tableHtml =
+      '<table class="data-table" style="min-width:100%;white-space:nowrap;">' +
+      '<thead><tr>' +
+        '<th class="fb-flag-th"></th>' +
+        _fbHeaders.map(function (h) { return '<th>' + esc(String(h)) + '</th>'; }).join("") +
+      '</tr></thead>' +
+      '<tbody>' +
+        slice.map(function (row) {
+          var alert = _fbGetAlert(row);
+          var rowCls = alert ? ' class="fb-alert-row"' : '';
+          var flag   = alert
+            ? '<td class="fb-flag-td" title="' + alert.days + ' ימים ללא מענה">⚑</td>'
+            : '<td class="fb-flag-td"></td>';
+          return '<tr' + rowCls + '>' + flag +
+            _fbHeaders.map(function (h) {
+              return '<td>' + _fbFmtCell(row[h]) + '</td>';
+            }).join("") +
+          '</tr>';
+        }).join("") +
+      '</tbody>' +
+      '</table>';
+
+    document.getElementById("fbTable").innerHTML = alertHtml + tableHtml;
+
+    document.getElementById("fbPager").innerHTML =
+      '<button onclick="_fbPage--;renderFbPage()" ' + (_fbPage === 0 ? 'disabled' : '') + '>→ הקודם</button>' +
+      '<span>עמוד ' + (_fbPage + 1) + ' מתוך ' + pages + ' · ' + total + ' לידים</span>' +
+      '<button onclick="_fbPage++;renderFbPage()" ' + (_fbPage >= pages - 1 ? 'disabled' : '') + '>← הבא</button>';
+  }
+
+  // ── Formatters ────────────────────────────
+  function num(n) {
+    n = Math.round(n);
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+    if (n >= 1000)    return (n / 1000).toFixed(1) + "K";
+    return n.toLocaleString("he-IL");
+  }
+
+  function pct(n)  { return (n * 100).toFixed(1) + "%"; }
+
+  function rev(n) {
+    n = parseFloat(n) || 0;
+    if (n >= 1000000) return CONFIG.currency + (n / 1000000).toFixed(1) + "M";
+    if (n >= 1000)    return CONFIG.currency + (n / 1000).toFixed(1) + "K";
+    return CONFIG.currency + n.toFixed(0);
+  }
+
+  function dur(n) {
+    var m = Math.floor(n / 60), s = Math.floor(n % 60);
+    return m + ":" + String(s).padStart(2, "0");
+  }
+
+  function delta(cur, prev, invertGood) {
+    if (!prev) return { cls: "flat", txt: "—" };
+    var p   = ((cur - prev) / prev) * 100;
+    var up  = invertGood ? p < 0 : p >= 0;
+    var cls = Math.abs(p) < 0.5 ? "flat" : (up ? "up" : "down");
+    return { cls: cls, txt: (p >= 0 ? "↑ +" : "↓ ") + p.toFixed(1) + "%" };
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  // ── Boot ──────────────────────────────────
+  document.getElementById("periodSelect").addEventListener("change", function (e) {
+    currentMode = e.target.value;
+    document.getElementById("ecomSection").style.display = "none";
+    document.getElementById("loadingEl").style.display = "flex";
+    document.getElementById("dash").style.display = "none";
+    load(false, currentMode);
+  });
+
+  load(false);
+  setInterval(function () { load(true); }, CONFIG.refreshMin * 60 * 1000);
+})();
+</script>
+</body>
+</html>
