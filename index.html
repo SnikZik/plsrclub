@@ -692,6 +692,8 @@
 
   // ── Fetch ─────────────────────────────────
   function load(isRefresh, mode) {
+    // Maintenance hold — keep loading state; no data render.
+    return;
     mode = mode || currentMode;
     var range = getPeriodRange(mode);
     var url = CONFIG.appsScriptUrl +
